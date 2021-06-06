@@ -35,7 +35,7 @@
 //
 //****************************************************************************
 
-#include <ti/devices/msp432p4xx/driverlib/driverlib.h>
+#include <driverlib.h>
 #include "HAL_I2C.h"
 
 

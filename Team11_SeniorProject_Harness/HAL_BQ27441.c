@@ -39,27 +39,20 @@
 #include <stdint.h>
 #include "HAL_BQ27441.h"
 #include "HAL_I2C.h"
-#include "HAL_UART.h"
 
 /* Configures BQ27441 device properties */
 bool BQ27441_initConfig()
 {
 	short result = 0;
 
-	UART_transmitString("*************************************\r\n");
-	UART_transmitString("Initializing BQ27441 Configuration\r\n");
-	UART_transmitString("*************************************\r\n");
 
 	//Default Config, DesignCapacity = 1200mAh, DesignEnergy = 1200mAh*3.7V, Terminate Voltage = 3200mV, Taper Current = 120mA
 	char str[64];
 	sprintf(str, "DesignCapacity = %dmAh\r\n", CONF_DESIGN_CAPACITY);
-	UART_transmitString(str);
 	sprintf(str, "DesignEnergy = %dmAh * 3.7 = %dJ\r\n", CONF_DESIGN_CAPACITY, CONF_DESIGN_ENERGY);
-	UART_transmitString(str);
 	sprintf(str, "TerminateVoltage = %dmV\r\n", CONF_TERMINATE_VOLTAGE);
-	UART_transmitString(str);
 	sprintf(str, "TaperRate = %dmAh/(0.1*%dmA) = %d\r\n", CONF_DESIGN_CAPACITY, CONF_TAPER_CURRENT, CONF_TAPER_RATE);
-	UART_transmitString(str);
+
 
 	if (!BQ27441_read16(FLAGS, &result, 1000))
 		return 0;
@@ -187,16 +180,10 @@ bool BQ27441_initConfig()
 				return 0;
 		}
 
-		UART_transmitString("*************************************\r\n");
-		UART_transmitString("BQ27441 config inialized succesfully\r\n");
-		UART_transmitString("*************************************\r\n");
 		return 1;
 	}
 	else
 	{
-		UART_transmitString("*************************************\r\n");
-		UART_transmitString("BQ27441 config inialized already\r\n");
-		UART_transmitString("*************************************\r\n");
 		return 1;
 	}
 }
