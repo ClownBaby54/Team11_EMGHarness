@@ -12,8 +12,15 @@ char ack_rf_data[5];
 void nRF24_init(void)
 {
 
+    //P5.0 -> IRQ
+    //P3.5 -> SCK
+    //P3.6 -> MOSI
+    //P3.7 -> MISO
+    //P4.1 -> CSN
+    //P4.0 -> CE
+
+
     // declare address of other transceiver
-    //uint8_t addr[5] = { 0xEE, 0xAD, 0xBE, 0xEF, 0x00 };
     uint8_t addr[5] = "rad01";
     uint8_t myaddy[5] = "rad02";
     // green led initialization
@@ -55,12 +62,11 @@ void nRF24_send(uint8_t len, uint8_t *buf)
     w_tx_payload(len, buf);
     msprf24_activate_tx();
 
-    if(msprf24_rx_pending())
-    {
-        r_rx_payload(5, (char *)ack_rf_data);
-        flush_rx();
-        printf(ack_rf_data);
-    }
+//    if(msprf24_rx_pending())
+//    {
+//        r_rx_payload(5, (char *)ack_rf_data);
+//        flush_rx();
+//    }
 
     __delay_cycles(15000);
 
