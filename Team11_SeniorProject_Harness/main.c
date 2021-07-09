@@ -46,7 +46,7 @@ void GPIO_init(void);
 int res = 0;
 
 
-int Err[50];//Array of possible errors
+int Err[50];                                                    //Array of possible errors
 
 void main(void)
 {
@@ -67,30 +67,30 @@ void main(void)
         MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
         MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN0);
 
-        //MAP_SysTick_setPeriod(3000000);     //1 second systick count
-        MAP_SysTick_setPeriod(600000);     //200ms second systick count
+        //MAP_SysTick_setPeriod(3000000);                       //1 second systick count
+        MAP_SysTick_setPeriod(600000);                          //200ms second systick count
         MAP_SysTick_enableModule();
 
-        nRF24_init();// initiate rf transceiver
+        nRF24_init();                                           // initiate rf transceiver
         
-        MAP_Interrupt_disableMaster();        // enable interrupts
+        MAP_Interrupt_disableMaster();                          // enable interrupts
         MAP_SysTick_enableInterrupt();
         __delay_cycles(1000000);
 
-        I2C_initGPIO(); // initialization for the I2C
+        I2C_initGPIO();                                         // initialization for the I2C
         I2C_init();
 
         //EMG sensor code
-        setupTimerA3();                         //call the timerA3 set up function to initialize
-        ADC_Init();                             //setup EMG sensor readings
+        setupTimerA3();                                         //call the timerA3 set up function to initialize
+        ADC_Init();                                             //setup EMG sensor readings
 
-        float averageLB = 0;                    //initialize it to be 0
+        float averageLB = 0;                                    //initialize it to be 0
         float averageLT = 0;
-        float averageRB = 0;                    //initialize it to be 0
+        float averageRB = 0;                                    //initialize it to be 0
         float averageRT = 0;
 
         BQ27441_initConfig();
-        BQ27441_initOpConfig();                  //Boosterpack read setup
+        BQ27441_initOpConfig();                                 //Boosterpack read setup
         BQ27441_control(BAT_INSERT, 63);
 
 
@@ -99,38 +99,34 @@ void main(void)
         while(1)
         {
             /*********** BICEP DATA*******************************/
-            if(Index_ArrLB)   //only index when read completes
+            if(Index_ArrLB)                                     //only index when read completes
             {
                 //Bicep Indexing and average
 
                 sum = 0;
                 for(i = SIZE-1; i >= 1; i--)
                 {
-                    ArrayBadc[i] = ArrayBadc[i-1];
-                    sum += ArrayBadc[i];
+                    ArrayBadc[i] = ArrayBadc[i-1];              //make the current one the previous one
+                    sum += ArrayBadc[i];                        //sum the previous to the new one
                 }
-                ArrayBadc[0] = P5_5_Voltage; //shift new value
+                ArrayBadc[0] = P5_5_Voltage;                    //shift new value
                 sum += ArrayBadc[0];
-
-                averageLB = sum/(SIZE);//take the individual pieces add them up and divide by the size of
-
+                averageLB = sum/(SIZE);                         //take the individual pieces add them up and divide by the size of
                 Index_ArrLB = 0;
-
             }
 
             if(Index_ArrLT)
             {
-
                 sum = 0;
                 for(i = SIZE-1; i >= 1; i--)
                 {
-                    ArrayTadc[i] = ArrayTadc[i-1];
-                    sum += ArrayTadc[i];
+                    ArrayTadc[i] = ArrayTadc[i-1];              //make the current one the previous one
+                    sum += ArrayTadc[i];                        //sum the previous to the new one
                 }
-                ArrayTadc[0] = P8_5_Voltage; //shift new value
-                sum += ArrayTadc[0];
+                ArrayTadc[0] = P8_5_Voltage;                    //shift new value
+                sum += ArrayTadc[0];                            
 
-                averageLT = sum/(SIZE);//take the indivudal pieces add them up and divide by the size of
+                averageLT = sum/(SIZE);                         //take the indivudal pieces add them up and divide by the size of
 
                 Index_ArrLT = 0;
             }
