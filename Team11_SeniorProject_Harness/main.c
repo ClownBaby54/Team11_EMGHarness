@@ -1,18 +1,16 @@
-
+//libraries needed
 #include "msp.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "nRF24_driver.h"           // eusci_b2
-
-
+#include "nRF24_driver.h"           // eusci_b2 -- for the RF module
 #include <driverlib.h>
 #include "HAL_I2C.h"
 #include "HAL_BQ27441.h"
 #include <math.h>
 
-
+//functions
 void TA3_N_IRQHandler();
 void setupTimerA3();
 void ADC14_IRQHandler();
@@ -42,15 +40,13 @@ float P5_5_Voltage; //tricep
 float P5_4_Voltage; //Rbicep
 float P5_2_Voltage; //Rtricep
 
-//void CS_init(void);
-void GPIO_init(void);
-//char *itoa(int, char*, int);
 
+void GPIO_init(void);
 
 int res = 0;
 
-//Array of possible errors
-int Err[50];
+
+int Err[50];//Array of possible errors
 
 void main(void)
 {
@@ -62,12 +58,10 @@ void main(void)
         int i = 0;
         int batteryread_delay = 0;
 
-
         /* Halting the Watchdog  */
         MAP_WDT_A_holdTimer();
 
         GPIO_init();
-//        CS_init();
 
         // red led initialization
         MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
@@ -77,32 +71,26 @@ void main(void)
         MAP_SysTick_setPeriod(600000);     //200ms second systick count
         MAP_SysTick_enableModule();
 
-        // initiate rf transceiver
-        nRF24_init();
-
-        // enable interrupts
-        MAP_Interrupt_disableMaster();
+        nRF24_init();// initiate rf transceiver
+        
+        MAP_Interrupt_disableMaster();        // enable interrupts
         MAP_SysTick_enableInterrupt();
-//        MAP_Interrupt_enableMaster();
-
         __delay_cycles(1000000);
-//
-//        /* Initialize I2C */
-        I2C_initGPIO();
+
+        I2C_initGPIO(); // initialization for the I2C
         I2C_init();
 
         //EMG sensor code
-        setupTimerA3(); //call the timerA3 set up function to initialize
-        ADC_Init();     //setup EMG sensor readings
+        setupTimerA3();                         //call the timerA3 set up function to initialize
+        ADC_Init();                             //setup EMG sensor readings
 
-        float averageLB = 0; //initialize it to be 0
+        float averageLB = 0;                    //initialize it to be 0
         float averageLT = 0;
-        float averageRB = 0; //initialize it to be 0
+        float averageRB = 0;                    //initialize it to be 0
         float averageRT = 0;
 
-        //Boosterpack read setup
         BQ27441_initConfig();
-        BQ27441_initOpConfig();
+        BQ27441_initOpConfig();                  //Boosterpack read setup
         BQ27441_control(BAT_INSERT, 63);
 
 
