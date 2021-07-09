@@ -102,7 +102,6 @@ void main(void)
             if(Index_ArrLB)                                     //only index when read completes
             {
                 //Bicep Indexing and average
-
                 sum = 0;
                 for(i = SIZE-1; i >= 1; i--)
                 {
@@ -125,59 +124,48 @@ void main(void)
                 }
                 ArrayTadc[0] = P8_5_Voltage;                    //shift new value
                 sum += ArrayTadc[0];                            
-
                 averageLT = sum/(SIZE);                         //take the indivudal pieces add them up and divide by the size of
-
                 Index_ArrLT = 0;
             }
 
             if(Index_ArrRB)
             {
-
-
                 sum = 0;
                 for(i = SIZE-1; i >= 1; i--)
                 {
-                    ArrayRBadc[i] = ArrayRBadc[i-1];
-                    sum += ArrayRBadc[i];
+                    ArrayRBadc[i] = ArrayRBadc[i-1];            //make the current one the previous one
+                    sum += ArrayRBadc[i];                       //sum the previous to the new one
                 }
-                ArrayRBadc[0] = P5_4_Voltage; //shift new value
+                ArrayRBadc[0] = P5_4_Voltage;                   //shift new value
                 sum += ArrayRBadc[0];
-
-                averageRB = sum/(SIZE);//take the indivudal pieces add them up and divide by the size of
-
+                averageRB = sum/(SIZE);                         //take the indivudal pieces add them up and divide by the size of
                 Index_ArrRB = 0;
             }
 
             if(Index_ArrRT)
             {
-
                 sum = 0;
                 for(i = SIZE-1; i >= 1; i--)
                 {
-                    ArrayRTadc[i] = ArrayRTadc[i-1];
-                    sum += ArrayRTadc[i];
+                    ArrayRTadc[i] = ArrayRTadc[i-1];            //make the current one the previous one
+                    sum += ArrayRTadc[i];                       //sum the previous to the new one
                 }
-                ArrayRTadc[0] = P5_2_Voltage; //shift new value
+                ArrayRTadc[0] = P5_2_Voltage;                   //shift new value
                 sum += ArrayRTadc[0];
-
-                averageRT = sum/(SIZE);//take the indivudal pieces add them up and divide by the size of
-
+                averageRT = sum/(SIZE);                         //take the indivudal pieces add them up and divide by the size of
                 Index_ArrRT = 0;
             }
 
-            //prepare and send rf data
-            if(res == 1)
+           
+            if(res == 1)                                       //prepare and send rf data
             {
                 batteryread_delay += 1;
-//                short result16 = 0;
                 char str[3];
 
-                //read battery status every half minute
-                if(batteryread_delay >= 30)
+             
+                if(batteryread_delay >= 30)                   //read battery status every half minute
                 {
                     batteryread_delay = 0;
-
                     /* Read State Of Charge */
                     if(!BQ27441_read16(STATE_OF_CHARGE, &result16, 63))
                     {
@@ -191,10 +179,8 @@ void main(void)
                         rf_data[9] = str[1];
                     }
                 }
-
-                // reset second_count
-
-                //load elements as characters for rf_data
+                    
+                /*load elements as characters for rf_data*/
                 sprintf(str, "%2.2f", averageLB/3.3*99);
                 rf_data[0] = str[0];
                 rf_data[1] = str[1];
@@ -218,8 +204,7 @@ void main(void)
 
                 // debugging statements
                 printf(rf_data); printf("\n\r");
-
-
+                    
                 // red led off
                 MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN0);
 
@@ -227,35 +212,34 @@ void main(void)
             }
         }
 
-
-
 }
 
 
-
-
 void SysTick_Handler(void)
+ /*
+ Set up the SysTick Handler
+ */
 {
         res = 1;
 }
 void PORT5_IRQHandler(void)
+/*
+Set up the Port5 IRQ Handler
+*/
 {
         uint32_t status;
-
-        // get status and clear interrupt flag
-        status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P5);
+        status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P5); // get status and clear interrupt flag
         P5IFG = 0;
-
-        // set rf_irq with interrupt value
-        if (status & BIT0)
+        if (status & BIT0)                                         // set rf_irq with interrupt value                                  
         {
             rf_irq |= RF24_IRQ_FLAGGED;
         }
 
 }
-
-///* Initializes GPIO */
 void GPIO_init()
+/*
+Initializes GPIO
+*/
 {
     /* Terminate all GPIO pins to Output LOW to minimize power consumption */
     MAP_GPIO_setAsOutputPin(GPIO_PORT_PA, PIN_ALL16);
@@ -272,28 +256,27 @@ void GPIO_init()
 
 void ADC14_IRQHandler()
 /*
- * purpose set up the ADC14-IRQhandler to track the change in voltages from the EMG data readings
-
+ purpose set up the ADC14-IRQhandler to track the change in voltages from the EMG data readings
  */
 {
-    uint32_t flags = ADC14->IFGR0; //reads flags and clears
-    if(flags&BIT(10)) // if interrupt flag
+    uint32_t flags = ADC14->IFGR0;              //reads flags and clears
+    if(flags&BIT(10))                           // if interrupt flag
     {
         P8_5_Voltage = ADC14->MEM[10]/16383.0*3.3;
         Index_ArrLT = 1;
     }
-    if(flags&BIT(11)) // if interrupt flag //BIT 11 is BICEP
+    if(flags&BIT(11))                            // if interrupt flag //BIT 11 is BICEP
     {
         P5_5_Voltage = ADC14->MEM[11]/(16383.0)*3.3;
         Index_ArrLB = 1;
     }
-    if(flags&BIT(12)) // if interrupt flag //BIT 12 is Right TRICEP
+    if(flags&BIT(12))                           // if interrupt flag //BIT 12 is Right TRICEP
     {
         P5_4_Voltage = ADC14->MEM[12]/16383.0*3.3;
         Index_ArrRB = 1;
     }
 
-    if(flags&BIT(13)) // if interrupt flag //BIT 11 is Right BICEP
+    if(flags&BIT(13))                           // if interrupt flag //BIT 11 is Right BICEP
     {
         P5_2_Voltage = ADC14->MEM[13]/16383.0*3.3;
         Index_ArrRT = 1;
@@ -321,16 +304,22 @@ void setupTimerA3()
 }
 
 void TA3_N_IRQHandler()
+/*
+Part of the timer associated with the ADC
+*/
 {
     ADC14->CTL0 |= BIT0; //Start the Analog Conversion
     TIMER_A3->CTL &= ~BIT0;
 }
 
 void ADC_Init()
+/*
+ADC initialization 
+*/
 {
-    P8->SEL0 |=  BIT5; // -- // SEL == 00 -> GPIO
-    P8->SEL1 |=  BIT5;//  --SEL == 01 -> TimerA
-    P8->DIR  &= ~BIT5;//  --  SEL == 11 -> Analog Input
+    P8->SEL0 |=  BIT5;                   // SEL == 00 -> GPIO
+    P8->SEL1 |=  BIT5;                   //SEL == 01 -> TimerA
+    P8->DIR  &= ~BIT5;                   // SEL == 11 -> Analog Input
 
     P5->SEL0 |=  BIT5;
     P5->SEL1 |=  BIT5;
@@ -352,17 +341,13 @@ void ADC_Init()
     ADC14->MCTL[11] = 0;  //read A0
     ADC14->MCTL[12] = 1;  //read A1
     ADC14->MCTL[13] = 3|BIT7;  //read A3
-    //ADC14->MCTL[30] = 0 | BIT7;  // End of Sequence.  Read 21 analog inputs to make it slow.
 
     //MEM[0]
     // 15-0   Contains results of read
 
-    //IE0
-    // Interrupt on MCTL[10] and MCTL[11] being completed
-    ADC14->IER0 = BIT(10)|BIT(11)|BIT(12)|BIT(13);
+    ADC14->IER0 = BIT(10)|BIT(11)|BIT(12)|BIT(13);   // Interrupt on MCTL[10] and MCTL[11] being completed
     //IE1
-    // All zeros to not interrupt enable
-    ADC14->IER1 = 0;
+    ADC14->IER1 = 0;                                // All zeros to not interrupt enable
 
     ADC14->CTL0 |= BIT1; //Enable the Analog Conversion
 
