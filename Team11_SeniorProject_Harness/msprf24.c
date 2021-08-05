@@ -1,5 +1,13 @@
+
+/*
+ * Name:            Senior Project Team 11
+ * File:            msprf24.c
+ * Description:     msprf24 library by nordic semiconductor modified to work with MSP432
+ *
+ */
+
 /* msprf24.c
- * MSP430 library for interfacing with the nRF24L01+ RF transceiver by
+ * MSP432 library for interfacing with the nRF24L01+ RF transceiver by
  * Nordic Semiconductor.
  *
  * Serial interfaces supported:
@@ -9,7 +17,7 @@
  * 4. USCI_A F5xxx - developed on MSP430F5172
  * 5. USCI_B F5xxx - developed on MSP430F5172
  *
- * MSP430-specific code inspired/derived from dkedr's nrf24 library posted on the 43oh forums:
+ * MSP432-specific code inspired/derived from dkedr's nrf24 library posted on the 43oh forums:
  * http://www.43oh.com/forum/viewtopic.php?f=10&t=2572
  *
  *
@@ -422,7 +430,7 @@ void msprf24_init()
 	rf_feature = 0x00;  // Initialize this so we're starting from a clean slate
 	msprf24_enable_feature(RF24_EN_DPL);      // Dynamic payload size capability (set with msprf24_set_pipe_packetsize(x, 0))
 	//msprf24_enable_feature(RF24_EN_DYN_ACK);  // Ability to use w_tx_payload_noack()
-	msprf24_enable_feature(RF24_EN_ACK_PAY);    //Test
+	//msprf24_enable_feature(RF24_EN_ACK_PAY);    //Test
 
 	msprf24_powerdown();
 	flush_tx();
