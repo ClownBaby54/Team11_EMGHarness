@@ -1,14 +1,23 @@
+
 /*
- * nRF24_driver.c
+ * Name:            Senior Project Team 11
+ * File:            nRF24_driver.c
+ * Description:     RF functions used to communicate with nrf24l01+ module
  *
- *  Created on: Feb 26, 2018
- *      Author: lourw
  */
+
 
 #include "nRF24_driver.h"
 char ack_rf_data[5];
 
 
+/*----------------------------------------------------------------
+ * void nRF24_init(void)
+ *
+ * Description: Initializes RF module
+ * Inputs: None
+ * Outputs: None
+----------------------------------------------------------------*/
 void nRF24_init(void)
 {
 
@@ -37,36 +46,32 @@ void nRF24_init(void)
 
     /* Initial values for nRF24L01+ library config variables */
     rf_crc = RF24_EN_CRC | RF24_CRCO; // CRC enabled, 16-bit
-    rf_addr_width      = 5;
-    rf_speed_power     = RF24_SPEED_1MBPS | RF24_POWER_MIN;
-//    rf_channel         = 105;
+    rf_addr_width      =  5;
+    rf_speed_power     = RF24_SPEED_1MBPS | RF24_POWER_MINUS6DBM;
     rf_channel = 76;
 
     msprf24_init();  // All RX pipes closed by default
-    //msprf24_set_pipe_packetsize(0, 4);
     msprf24_set_pipe_packetsize(0, 0);
-  //  msprf24_set_pipe_packetsize(1, 0);  //test
-  //  msprf24_open_pipe(0, 0);
     msprf24_open_pipe(0, 1);
-    //msprf24_open_pipe(1, 0);            //test
     msprf24_standby();
 
     w_tx_addr(addr);
-    //w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
+    w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
                          // needs to listen to the TX addr on pipe#0 to receive them.
-    w_rx_addr(0, addr);               //test
 }
 
+
+/*----------------------------------------------------------------
+ * void nRF24_send(uint8_t len, uint8_t *buf)
+ *
+ * Description: Function used to send data to RF transceiver
+ * Inputs: Length of data, data
+ * Outputs: None
+----------------------------------------------------------------*/
 void nRF24_send(uint8_t len, uint8_t *buf)
 {
     w_tx_payload(len, buf);
     msprf24_activate_tx();
-
-//    if(msprf24_rx_pending())
-//    {
-//        r_rx_payload(5, (char *)ack_rf_data);
-//        flush_rx();
-//    }
 
     __delay_cycles(15000);
 
