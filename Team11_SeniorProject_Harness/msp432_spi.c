@@ -1,3 +1,10 @@
+/*
+ * Name:            Senior Project Team 11
+ * File:            msp432_spi.c
+ * Description:     SPI communication functions adapted from nordic semiconductor's RF24 library to work with MSP432
+ *
+ */
+
 #include <msp432.h>
 #include "msp432_spi.h"
 #include "nrf_userconfig.h"
